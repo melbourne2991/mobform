@@ -13,10 +13,7 @@ configure({ enforceActions: true });
 
 export { Validators } from "./Validators";
 
-export type Validator<T> = {
-  name: string;
-  validatorFn(value: T): Promise<boolean>;
-};
+export type Validator<T> = [string, ValidatorFn<T>];
 
 export type ValidatorConfig<T> = Validator<T>[];
 
@@ -71,13 +68,10 @@ export type SyncValidator<T> = (value: T) => boolean;
 export type ValidatorLikeFn<T> = ValidatorFn<T> | SyncValidator<T>;
 
 export const validator = function<T>(
-  name: string,
+  key: string,
   fn: ValidatorLikeFn<T>
 ): Validator<T> {
-  return {
-    name,
-    validatorFn: validatorFn(fn)
-  };
+  return [key, validatorFn(fn)];
 };
 
 export class FormState {
@@ -105,10 +99,12 @@ export class FormState {
     return fieldMap;
   }
 
+  @action
   addField(fieldState: FieldState<any>) {
     this.fields.push(fieldState);
   }
 
+  @action
   removeField(fieldState: FieldState<any>) {
     fieldState.reset();
     this.fields = this.fields.filter(_field => {
@@ -188,7 +184,7 @@ export class FieldState<T, V = T> {
   @observable validationEnabled: boolean;
 
   @observable error: ObservableMap<string, boolean>;
-  @observable validators: ValidatorConfig<T>;
+  @observable validators: ObservableMap<string, ValidatorFn<any>>;
 
   name: string;
 
@@ -197,7 +193,7 @@ export class FieldState<T, V = T> {
   constructor(config: FieldStateConfig<T, V>) {
     this.name = config.name;
     this.config = config;
-    this.validators = this.config.validators || [];
+    this.validators = observable.map(this.config.validators || []);
 
     this.reset();
   }
@@ -246,12 +242,12 @@ export class FieldState<T, V = T> {
     const testValue = this.parseValue();
 
     const results = await Promise.all(
-      this.validators.map(validator => {
+      Array.from(this.validators).map(([name, validatorFn]) => {
         return new Promise<{ name: string; valid: boolean }>(async resolve => {
-          const valid = await validator.validatorFn(testValue as T);
+          const valid = await validatorFn(testValue as T);
 
           resolve({
-            name: validator.name,
+            name,
             valid
           });
         });
@@ -281,7 +277,7 @@ export class FieldState<T, V = T> {
   };
 }
 
-export function withErrorKey<T>(validator: Validator<T>, key: string) {
+export function withKey<T>(validator: Validator<T>, key: string) {
   return {
     ...validator,
     name: key

@@ -20,10 +20,7 @@ export function createIndexPage(routes: {
     </ul>
   );
 
-  page("/", () => {
-    console.log("init");
-    render(<IndexPageComponent />, root);
-  });
+  page("/", () => render(<IndexPageComponent />, root));
 
   routePaths.forEach(routePath => {
     page(routePath, () => {

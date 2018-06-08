@@ -1,21 +1,21 @@
 import { validator } from "./";
 
-const Required = () =>
+const required = () =>
   validator("required", (value: any) => {
     return !!value;
   });
 
-const MinLength = (minLength: number) =>
+const minLength = (minLength: number) =>
   validator("minLength", (value: string) => {
     return value.length >= minLength;
   });
 
-const MaxLength = (maxLength: number) =>
+const maxLength = (maxLength: number) =>
   validator("maxLength", (value: string) => {
     return value.length <= maxLength;
   });
 
-const Pattern = (pattern: RegExp | string) => {
+const pattern = (pattern: RegExp | string) => {
   const regexp =
     typeof pattern === "string" ? new RegExp(pattern, "g") : pattern;
 
@@ -25,8 +25,8 @@ const Pattern = (pattern: RegExp | string) => {
 };
 
 export const Validators = {
-  Required,
-  MinLength,
-  MaxLength,
-  Pattern
+  required,
+  minLength,
+  maxLength,
+  pattern
 };
