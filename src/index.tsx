@@ -13,9 +13,9 @@ configure({ enforceActions: true });
 
 export { Validators } from "./Validators";
 
-export type Validator<T> = [string, ValidatorFn<T>];
+export type Validator<T, V> = [string, ValidatorFn<T, V>];
 
-export type ValidatorConfig<T> = Validator<T>[];
+export type ValidatorConfig<T, V> = Validator<T, V>[];
 
 export interface FieldStateConfig<T, V> {
   name: string;
@@ -27,7 +27,7 @@ export interface FieldStateConfig<T, V> {
 
   initialValue: T;
 
-  validators?: ValidatorConfig<T>;
+  validators?: ValidatorConfig<T, V>;
 }
 
 export type FSContextValue = FormState;
@@ -36,8 +36,8 @@ export interface FormContextProps {
   parent: FSContextValue;
 }
 
-export interface FSFieldProps<T> {
-  fieldState: FieldState<T>;
+export interface FSFieldProps<V> {
+  fieldState: FieldState<any, V>;
 }
 
 export interface InternalFieldProps<T> {
@@ -48,13 +48,13 @@ export interface InternalFieldProps<T> {
   error: ObservableMap<string, boolean>;
 }
 
-export type ValidatorFn<T> = (value: T) => Promise<boolean>;
+export type ValidatorFn<T, V> = (value: T, viewValue: V) => Promise<boolean>;
 
-export const validatorFn = function<T>(
-  fn: (value: T) => boolean | Promise<boolean>
-): ValidatorFn<T> {
-  return (value: T) => {
-    const result = fn(value);
+export const validatorFn = function<T, V>(
+  fn: (value: T, viewValue: V) => boolean | Promise<boolean>
+): ValidatorFn<T, V> {
+  return (value: T, viewValue: V) => {
+    const result = fn(value, viewValue);
 
     if ((result as Promise<boolean>).then) {
       return result as Promise<boolean>;
@@ -64,13 +64,13 @@ export const validatorFn = function<T>(
   };
 };
 
-export type SyncValidator<T> = (value: T) => boolean;
-export type ValidatorLikeFn<T> = ValidatorFn<T> | SyncValidator<T>;
+export type SyncValidator<T, V> = (value: T, viewValue: V) => boolean;
+export type ValidatorLikeFn<T, V> = ValidatorFn<T, V> | SyncValidator<T, V>;
 
-export const validator = function<T>(
+export const validator = function<T, V>(
   key: string,
-  fn: ValidatorLikeFn<T>
-): Validator<T> {
+  fn: ValidatorLikeFn<T, V>
+): Validator<T, V> {
   return [key, validatorFn(fn)];
 };
 
@@ -184,7 +184,7 @@ export class FieldState<T, V = T> {
   @observable validationEnabled: boolean;
 
   @observable error: ObservableMap<string, boolean>;
-  @observable validators: ObservableMap<string, ValidatorFn<any>>;
+  @observable validators: ObservableMap<string, ValidatorFn<any, any>>;
 
   name: string;
 
@@ -203,9 +203,19 @@ export class FieldState<T, V = T> {
     this.valid = true;
     this.dirty = false;
 
-    this.viewValue = this.config.initialValue;
     this.modelValue = this.config.initialValue;
+    this.viewValue = this.formatValue();
     this.error = observable.map();
+  }
+
+  @computed
+  get value(): T {
+    return this.modelValue as T;
+  }
+
+  set value(newValue: T) {
+    this.modelValue = newValue;
+    this.viewValue = this.formatValue();
   }
 
   @action
@@ -230,28 +240,25 @@ export class FieldState<T, V = T> {
     }
   }
 
-  parseValue() {
-    if (this.config.transform && this.config.transform.parser) {
-      return this.config.transform.parser(this.viewValue as V);
-    }
-
-    return this.viewValue;
-  }
-
+  @action
   validate = async () => {
     const testValue = this.parseValue();
 
     const results = await Promise.all(
-      Array.from(this.validators).map(([name, validatorFn]) => {
-        return new Promise<{ name: string; valid: boolean }>(async resolve => {
-          const valid = await validatorFn(testValue as T);
+      Array.from(this.validators).map(
+        ([name, validatorFn]: Validator<any, any>) => {
+          return new Promise<{ name: string; valid: boolean }>(
+            async resolve => {
+              const valid = await validatorFn(testValue as T, this.viewValue);
 
-          resolve({
-            name,
-            valid
-          });
-        });
-      })
+              resolve({
+                name,
+                valid
+              });
+            }
+          );
+        }
+      )
     );
 
     runInAction(() => {
@@ -269,15 +276,31 @@ export class FieldState<T, V = T> {
       });
 
       if (this.valid) {
-        this.modelValue = this.viewValue;
+        this.modelValue = testValue;
       }
     });
 
     return this.valid;
   };
+
+  parseValue(): T {
+    if (this.config.transform && this.config.transform.parser) {
+      return this.config.transform.parser(this.viewValue as V);
+    }
+
+    return this.viewValue as T;
+  }
+
+  formatValue(): V {
+    if (this.config.transform && this.config.transform.formatter) {
+      return this.config.transform.formatter(this.modelValue as T);
+    }
+
+    return this.modelValue as V;
+  }
 }
 
-export function withKey<T>(validator: Validator<T>, key: string) {
+export function withKey<T, V>(validator: Validator<T, V>, key: string) {
   return {
     ...validator,
     name: key

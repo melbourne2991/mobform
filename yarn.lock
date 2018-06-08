@@ -2,6 +2,12 @@
 # yarn lockfile v1
 
 
+"@types/moment@^2.13.0":
+  version "2.13.0"
+  resolved "https://nexus.cd.auspost.com.au/nexus/repository/auspost-ddc-npmjs/@types/moment/-/moment-2.13.0.tgz#604ebd189bc3bc34a1548689404e61a2a4aac896"
+  dependencies:
+    moment "*"
+
 "@types/node@*":
   version "10.3.1"
   resolved "https://nexus.cd.auspost.com.au/nexus/repository/auspost-ddc-npmjs/@types/node/-/node-10.3.1.tgz#51092fbacaed768a122a293814474fbf6e5e8b6d"
@@ -2279,6 +2285,10 @@ mobx-react@^5.2.0:
 mobx@^4.3.1:
   version "4.3.1"
   resolved "https://nexus.cd.auspost.com.au/nexus/repository/auspost-ddc-npmjs/mobx/-/mobx-4.3.1.tgz#334e5aab4916b1d43f0faf3605a64b1b4b3ccb8d"
+
+moment@*, moment@^2.22.2:
+  version "2.22.2"
+  resolved "https://nexus.cd.auspost.com.au/nexus/repository/auspost-ddc-npmjs/moment/-/moment-2.22.2.tgz#3c257f9839fc0e93ff53149632239eb90783ff66"
 
 move-concurrently@^1.0.1:
   version "1.0.1"

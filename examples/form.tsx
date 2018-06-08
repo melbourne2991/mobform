@@ -10,10 +10,6 @@ import { observer } from "mobx-react";
  */
 import { TextInputField } from "./components/TextInputField";
 
-export interface AppState {
-  formState: FormState;
-}
-
 const firstNameFieldState = new FieldState({
   name: "firstName",
   initialValue: "Jim",
@@ -26,25 +22,21 @@ const lastNameFieldState = new FieldState({
   validators: [Validators.required()]
 });
 
+const formState = new FormState();
+
 @observer
-export class FormExample extends React.Component<{}, AppState> {
+export class FormExample extends React.Component<{}> {
   constructor(props: {}) {
     super(props);
-
-    this.state = {
-      formState: new FormState()
-    };
   }
 
   render() {
     return (
-      <FSForm formState={this.state.formState}>
+      <FSForm formState={formState}>
         <TextInputField fieldState={firstNameFieldState} />
         <TextInputField fieldState={lastNameFieldState} />
-        <div>Form valid: {`${this.state.formState.valid}`}</div>
-        <div>
-          Field values: {`${JSON.stringify(this.state.formState.fieldValues)}`}
-        </div>
+        <div>Form valid: {`${formState.valid}`}</div>
+        <div>Field values: {`${JSON.stringify(formState.fieldValues)}`}</div>
       </FSForm>
     );
   }

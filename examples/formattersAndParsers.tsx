@@ -1,0 +1,64 @@
+/**
+ * Formatter and Parsers Usage
+ */
+import * as React from "react";
+import { FieldState, Validators, validator } from "../src";
+import { observer } from "mobx-react";
+import * as moment from "moment";
+
+/**
+ * A state enabled text input we created earlier.
+ */
+import { DateInputField } from "./components/DateInputField";
+
+const dateOfBirthFieldState = new FieldState<Date, string>({
+  name: "dateOfBirth",
+  initialValue: undefined,
+  validators: [
+    Validators.required(),
+
+    /**
+     * Create a custom validator for our date.
+     * See the customValidators example for more information
+     */
+    validator("dateFormat", (value: Date, viewValue: string) => {
+      value;
+      return moment(viewValue, "DD-MM-YYYY", true).isValid();
+    })
+  ],
+  transform: {
+    formatter: date => {
+      if (date) {
+        return moment(date).format("DD-MM-YYYY");
+      }
+
+      return "";
+    },
+    parser: str => {
+      if (str) {
+        return moment(str, "DD-MM-YYYY").toDate();
+      }
+
+      return undefined;
+    }
+  }
+});
+
+@observer
+export class FormattersAndParsersExample extends React.Component<{}> {
+  constructor(props: {}) {
+    super(props);
+  }
+
+  render() {
+    return (
+      <div>
+        <DateInputField fieldState={dateOfBirthFieldState} />
+        <div>
+          {dateOfBirthFieldState.value &&
+            dateOfBirthFieldState.value.toString()}
+        </div>
+      </div>
+    );
+  }
+}

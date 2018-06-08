@@ -13,7 +13,7 @@ export function createIndexPage(routes: {
   const IndexPageComponent: React.SFC<{}> = () => (
     <ul>
       {routePaths.map(routePath => (
-        <li>
+        <li key={routePath}>
           <a href={routePath}>{routePath}</a>
         </li>
       ))}

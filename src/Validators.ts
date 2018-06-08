@@ -1,8 +1,9 @@
 import { validator } from "./";
 
 const required = () =>
-  validator("required", (value: any) => {
-    return !!value;
+  validator("required", (value: any, viewValue: string) => {
+    console.log(viewValue.length);
+    return !!value && !!viewValue.length;
   });
 
 const minLength = (minLength: number) =>
