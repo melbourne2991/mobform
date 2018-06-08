@@ -2,7 +2,7 @@
  * Async Validation
  */
 import * as React from "react";
-import { FieldState, Validators } from "../src";
+import { FieldState, validator } from "../src";
 import { observer } from "mobx-react";
 
 /**
@@ -10,23 +10,36 @@ import { observer } from "mobx-react";
  */
 import { TextInputField } from "./components/TextInputField";
 
-const firstNameFieldState = new FieldState({
+function someAsyncCall(): Promise<boolean> {
+  return new Promise(resolve => setTimeout(() => resolve(true), 500));
+}
+
+const firstNameFieldState = new FieldState<string>({
   name: "firstName",
   initialValue: "Jim",
   validators: [
-    Validators.required(),
-    Validators.minLength(5),
-    Validators.maxLength(20)
+    /**
+     * Return a promise from the validator function
+     */
+    validator("asyncValidation", () => {
+      return someAsyncCall();
+    })
   ]
 });
 
 @observer
-export class BasicExample extends React.Component<{}> {
+export class AsyncValidationExample extends React.Component<{}> {
   constructor(props: {}) {
     super(props);
   }
 
   render() {
-    return <TextInputField fieldState={firstNameFieldState} />;
+    return (
+      <div>
+        <TextInputField fieldState={firstNameFieldState} />
+        {firstNameFieldState.validating && "Validating..."}
+        An async error: {firstNameFieldState.error.get("asyncValidation")}
+      </div>
+    );
   }
 }

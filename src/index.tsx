@@ -179,7 +179,9 @@ export class FieldState<T, V = T> {
   @observable viewValue: V | T;
 
   @observable dirty: boolean;
+  @observable touched: boolean;
   @observable valid: boolean;
+  @observable validating: boolean;
 
   @observable validationEnabled: boolean;
 
@@ -202,6 +204,8 @@ export class FieldState<T, V = T> {
   reset() {
     this.valid = true;
     this.dirty = false;
+    this.validating = false;
+    this.touched = false;
 
     this.modelValue = this.config.initialValue;
     this.viewValue = this.formatValue();
@@ -216,6 +220,21 @@ export class FieldState<T, V = T> {
   set value(newValue: T) {
     this.modelValue = newValue;
     this.viewValue = this.formatValue();
+  }
+
+  @computed
+  get invalid() {
+    return !this.valid;
+  }
+
+  @computed
+  get pristine() {
+    return !this.dirty;
+  }
+
+  @computed
+  get untouched() {
+    return !this.touched;
   }
 
   @action
@@ -242,6 +261,9 @@ export class FieldState<T, V = T> {
 
   @action
   validate = async () => {
+    this.touched = true;
+    this.validating = true;
+
     const testValue = this.parseValue();
 
     const results = await Promise.all(
@@ -278,6 +300,8 @@ export class FieldState<T, V = T> {
       if (this.valid) {
         this.modelValue = testValue;
       }
+
+      this.validating = false;
     });
 
     return this.valid;
