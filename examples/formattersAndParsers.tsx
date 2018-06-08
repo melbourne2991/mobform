@@ -55,6 +55,7 @@ export class FormattersAndParsersExample extends React.Component<{}> {
       <div>
         <DateInputField fieldState={dateOfBirthFieldState} />
         <div>
+          JS Date (parsed from user input):
           {dateOfBirthFieldState.value &&
             dateOfBirthFieldState.value.toString()}
         </div>
