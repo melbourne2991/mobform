@@ -22,7 +22,9 @@ const lastNameFieldState = new FieldState({
   validators: [Validators.required()]
 });
 
-const formState = new FormState();
+const formState = new FormState({
+  name: "basicForm"
+});
 
 @observer
 export class FormExample extends React.Component<{}> {
@@ -36,7 +38,7 @@ export class FormExample extends React.Component<{}> {
         <TextInputField fieldState={firstNameFieldState} />
         <TextInputField fieldState={lastNameFieldState} />
         <div>Form valid: {`${formState.valid}`}</div>
-        <div>Field values: {`${JSON.stringify(formState.fieldValues)}`}</div>
+        <div>Field values: {`${JSON.stringify(formState.value)}`}</div>
       </FSForm>
     );
   }

@@ -74,10 +74,19 @@ export const validator = function<T, V>(
   return [key, validatorFn(fn)];
 };
 
-export class FormState {
-  @observable fields: FieldState<any>[];
+export interface FormObject<T> {
+  name: string;
+  valid: boolean;
+  value: T;
+  reset: () => void;
+}
 
-  constructor() {
+export class FormState implements FormObject<{ [fieldName: string]: any }> {
+  @observable fields: FormObject<any>[];
+  name: string;
+
+  constructor({ name }: { name: string }) {
+    this.name = name;
     this.fields = [];
   }
 
@@ -89,23 +98,30 @@ export class FormState {
   }
 
   @computed
-  get fieldValues() {
+  get value() {
     const fieldMap = {};
 
-    this.fields.forEach(field => {
-      fieldMap[field.name] = field.modelValue;
+    this.fields.forEach(fieldState => {
+      fieldMap[fieldState.name] = fieldState.value;
     });
 
     return fieldMap;
   }
 
   @action
-  addField(fieldState: FieldState<any>) {
+  reset() {
+    this.fields.forEach(fieldState => {
+      fieldState.reset();
+    });
+  }
+
+  @action
+  addField(fieldState: FormObject<any>) {
     this.fields.push(fieldState);
   }
 
   @action
-  removeField(fieldState: FieldState<any>) {
+  removeField(fieldState: FormObject<any>) {
     fieldState.reset();
     this.fields = this.fields.filter(_field => {
       return _field !== fieldState;
@@ -113,7 +129,9 @@ export class FormState {
   }
 }
 
-const FSContext = React.createContext<FSContextValue>(new FormState());
+const FSContext = React.createContext<FSContextValue>(
+  new FormState({ name: "root" })
+);
 
 export const withFormContext = function wthFormContext<P>(
   Component: React.ComponentType<P & FormContextProps>
@@ -127,12 +145,27 @@ export const withFormContext = function wthFormContext<P>(
   };
 };
 
-export const FSForm: React.SFC<{ formState: FormState }> = ({
-  formState,
-  ...props
-}) => {
-  return <FSContext.Provider value={formState} {...props} />;
-};
+export class FSFormComponent extends React.Component<
+  { formState: FormState } & FormContextProps
+> {
+  constructor(props: { formState: FormState } & FormContextProps) {
+    super(props);
+  }
+
+  componentWillUnmount() {
+    this.props.parent.removeField(this.props.formState);
+  }
+
+  componentDidMount() {
+    this.props.parent.addField(this.props.formState);
+  }
+
+  render() {
+    return <FSContext.Provider value={this.props.formState} {...this.props} />;
+  }
+}
+
+export const FSForm = withFormContext(FSFormComponent);
 
 export function withFieldProps<P, F>(
   Component: React.ComponentType<P & InternalFieldProps<F>>
@@ -174,7 +207,7 @@ export function withFieldProps<P, F>(
   );
 }
 
-export class FieldState<T, V = T> {
+export class FieldState<T, V = T> implements FormObject<T> {
   @observable modelValue: V | T;
   @observable viewValue: V | T;
 
