@@ -2,6 +2,16 @@
 
 Typescript first Form/Field state & validation, powered by MobX and inspired by Angular forms.
 
+## Features
+
+- Validation (sync or async)
+- Parsing and formatting of values
+- Resetting fields
+- Naming of fields
+- Grouping of fields
+- Auto remove/add of fields from state depending on whether the component is present.
+- Custom components (it's up to the consumer to implement their own state-enabled components).
+
 ## Installation
 
 `npm install --save mobform` / `yarn add mobform`
@@ -25,7 +35,7 @@ Provide a way to group fields to check their validity and get their values.
 
 #### Validators
 
-Exactly what they sound like, sync or async functions for validating a field's value.
+Sync or async functions for validating a field's value.
 
 ### Creating a state-enabled field component
 
