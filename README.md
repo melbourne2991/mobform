@@ -2,6 +2,12 @@
 
 Form/Field state & validation, powered by MobX and inspired by Angular forms.
 
+## Installation
+
+`npm install --save mobform` or `yarn add mobform`
+
+MobX and React are peer dependencies and will need to be installed separately.
+
 ## Basic usage
 
 ### Concepts
@@ -10,16 +16,16 @@ Mobform can be broken down into three parts.
 
 #### FieldStates
 
-"FieldStates" - are the core of the library. It is a container for field values as well an interface for exposing
+The core of the library. It is a container for field values as well an interface for exposing
 onChange, and validation and field reset methods.
 
 #### FormStates
 
-"FormStates" - provide a way to group fields to check their validity and get their values.
+Provide a way to group fields to check their validity and get their values.
 
 #### Validators
 
-"Validators" - Exactly what they sound like, sync or async functions for validating a field's value.
+Exactly what they sound like, sync or async functions for validating a field's value.
 
 ### Creating a state-enabled field component
 
@@ -158,3 +164,90 @@ What we have here is a factory function that takes configuration for the validat
 
 You are also able to return a promise from the validator function if you need to do any kind of async validation.
 `FieldState` exposes a `.validating` property so you can display a spinner while waiting for a result from the validator.
+
+### Parsers and Formatters
+
+FieldStates actually maintain two separate values internally. One is the **viewValue** - this is the value that is visible to the user and is the `value` exposed via the `withFieldProps` helper, the other is the **modelValue** (fieldState.value is an alias for fieldState.modelValue). The model value is the actual data represented by the view value.
+
+An example of this might be a date. The user may enter a string eg: `10/02/1990`, however given this represents a date we would like to store this data as a date and not as a string.
+
+To do this we can provide our fieldState with a **parser**, which would convert the string to a Date object:
+
+`User Input -> Parser -> Validator -> Update modelValue with parsed ViewValue`
+
+The problem is we still would like to be able to set the field programatically, so we also need a way to convert
+a date object to a string (for example, when prepopulating a form). This is where **formatters** come in:
+
+`Programattically change fieldState value -> Formatter -> Update viewValue with formatted modelValue`
+
+This way when we set the value: `fieldState.value = new Date()`, the view value will be updated correctly.
+
+Below is an example of using parsers/formatters with momentjs for a date input:
+
+```tsx
+/**
+ * Formatter and Parsers Usage
+ */
+import * as React from "react";
+import { FieldState, Validators, validator } from "mobform";
+import { observer } from "mobx-react";
+import * as moment from "moment";
+
+/**
+ * A state enabled text input we created earlier.
+ */
+import { DateInputField } from "./components/DateInputField";
+
+const dateOfBirthFieldState = new FieldState<Date, string>({
+  name: "dateOfBirth",
+  initialValue: undefined,
+  validators: [
+    Validators.required(),
+
+    /**
+     * Create a custom validator for our date.
+     * See the customValidators example for more information
+     */
+    validator("dateFormat", (value: Date, viewValue: string) => {
+      value;
+      return moment(viewValue, "DD-MM-YYYY", true).isValid();
+    })
+  ],
+  transform: {
+    formatter: date => {
+      if (date) {
+        return moment(date).format("DD-MM-YYYY");
+      }
+
+      return "";
+    },
+    parser: str => {
+      if (str) {
+        return moment(str, "DD-MM-YYYY").toDate();
+      }
+
+      return undefined;
+    }
+  }
+});
+
+@observer
+export class FormattersAndParsersExample extends React.Component<{}> {
+  constructor(props: {}) {
+    super(props);
+  }
+
+  render() {
+    return (
+      <div>
+        <DateInputField fieldState={dateOfBirthFieldState} />
+        <div>
+          JS Date (parsed from user input):
+          {dateOfBirthFieldState.value &&
+            dateOfBirthFieldState.value.toString()}
+        </div>
+      </div>
+    );
+  }
+}
+```
