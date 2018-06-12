@@ -61,8 +61,10 @@ export function withFieldProps<P, F>(
   return observer(
     withFormContext(
       observer(
-        class extends React.Component<FieldProps<F> & FormGroupContextProps> {
-          constructor(props: FieldProps<F> & FormGroupContextProps) {
+        class extends React.Component<
+          FieldProps<F, P> & FormGroupContextProps
+        > {
+          constructor(props: FieldProps<F, P> & FormGroupContextProps) {
             super(props);
           }
 
@@ -75,10 +77,11 @@ export function withFieldProps<P, F>(
           }
 
           render() {
-            const { ...props } = this.props;
+            const rest = this.props;
+
             return (
               <ObserverComponent
-                {...props}
+                {...rest}
                 value={this.props.fieldState.viewValue}
                 onChange={this.props.fieldState.onChange}
                 validate={this.props.fieldState.validate}
@@ -233,9 +236,9 @@ export class FieldState<T, V = T> implements FormObject<T> {
   }
 }
 
-export function withKey<T, V>(validator: Validator<T, V>, key: string) {
-  return {
-    ...validator,
-    name: key
-  };
+export function withKey<T, V>(
+  validator: Validator<T, V>,
+  key: string
+): Validator<T, V> {
+  return [key, validator[1]];
 }
