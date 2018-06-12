@@ -12,7 +12,8 @@
   "scripts": {
     "start": "MOBFORM_DEVELOPMENT=true webpack-dev-server --historyApiFallback --mode=development",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "tsc && cp -r ./build/src ./lib"
+    "build": "tsc && cp -r ./build/src ./lib",
+    "publish": "npm publish "
   },
   "author": "",
   "license": "ISC",
