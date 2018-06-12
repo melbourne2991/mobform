@@ -318,3 +318,137 @@ export class FormattersAndParsersExample extends React.Component<{}> {
   }
 }
 ```
+
+## Api Reference
+
+### FieldState
+
+#### Constructor
+
+```
+const fieldState = new FieldState<T, V>({
+  name: string,
+  initialValue: T,
+  transform?: {
+    formatter: (modelValue: T) => V,
+    parser: (viewValue: V) => T
+  },
+  validators?: Validator[]
+});
+```
+
+#### Instance
+
+```
+FieldState<T, V> {
+  valid: boolean;
+  invalid: boolean;
+  dirty: boolean;
+  pristine: boolean;
+  touched: boolean;
+  untouched: boolean;
+  validating: boolean;
+
+  // Alias for model value
+  value: T;
+
+  // The "real" value
+  modelValue: T;
+
+  // The value seen by the user - "the rendered value";
+  viewValue: V;
+
+  // The value that the field will be set to when reset() is called
+  initialValue: T;
+
+  validators: ObservableMap<string, Validator>;
+  error: ObservableMap<string, boolean>;
+
+  name: string;
+
+  // Updates the view value
+  onChange(newValue: V): void;
+
+  // Resets field back to initialValue and back to a valid state
+  reset(): void;
+
+  // Parses view value and runs validation
+  // if validation passes it will commit the new value to the model value.
+  async validate(): boolean;
+}
+```
+
+## FormGroupState
+
+#### Constructor
+
+```
+const formGroupState = new FormGroupState({
+  name: string
+});
+```
+
+#### Instance
+
+```
+ FormGroupState {
+  // The fields currently in the form's context (child components)
+  fields: FieldState<any>[];
+
+  // valid / pristine / untouched etc will only be true if ALL of the fields
+  // are in this state as well.
+
+  valid: boolean;
+  invalid: boolean;
+  dirty: boolean;
+  pristine: boolean;
+  touched: boolean;
+  untouched: boolean;
+  validating: boolean;
+
+  // Calls reset on all of it's fields (including nested FormGroups).
+  reset(): void
+
+  // If you are using the React helpers you will probably never need these.
+  // The withFieldProps wrapper component calls these in react lifecycle methods
+  // to remove and add fields dynamically.
+  //
+  // A form object is an interface that both FormGroups and FieldStates conform to.
+  addField<T>(formObject: FormObject<T>): void;
+  removeField<T>(formObject: FormObject<T>): void;
+ }
+```
+
+## Validators
+
+Exposes a set of already-made validators for convenience. They are all exposed
+as factory functions which take arguments for configuration.
+
+```
+Validators.required(): Validator
+Validators.minLength(minLength: number): Validator
+Validators.maxLength(maxLength: number): Validator
+Validators.pattern(pattern: RegExp): Validator
+```
+
+## validator()
+
+The validator helper creates a validator (basically just an object with a validator
+function and an errorKey). The object returned by validator() can be passed into a fieldState's `Validator[]` array.
+
+The validator function is passed the parsed "model" value (T) as well as the current view value (V).
+In most cases the validation will be performed on the modelValue however at times it may be necessary to validate the view value (see the formattersAndParsers example).
+
+```
+validator<T, V>(errorKey: string, (value: T, viewValue: V) => boolean | Promise<boolean>): Validator
+```
+
+## withKey()
+
+Takes a validator and an error key to override the default key.
+This can come in handy when using something like `Validators.pattern`
+where you may have more than one pattern validator which require different error messages.
+
+```
+  withKey(validator: Validator, errorKey: string): Validator
+```

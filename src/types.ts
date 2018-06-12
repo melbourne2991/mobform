@@ -6,7 +6,15 @@ export type FormGroupContextValue = FormGroupState;
 
 export interface FormObject<T> {
   name: string;
+
   valid: boolean;
+  invalid: boolean;
+  dirty: boolean;
+  pristine: boolean;
+  touched: boolean;
+  untouched: boolean;
+  validating: boolean;
+
   value: T;
   reset: () => void;
 }

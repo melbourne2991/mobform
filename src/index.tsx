@@ -96,6 +96,7 @@ export function withFieldProps<P, F>(
 export class FieldState<T, V = T> implements FormObject<T> {
   @observable modelValue: V | T;
   @observable viewValue: V | T;
+  @observable initialValue: V | T;
 
   @observable dirty: boolean;
   @observable touched: boolean;
@@ -115,6 +116,7 @@ export class FieldState<T, V = T> implements FormObject<T> {
     this.name = config.name;
     this.config = config;
     this.validators = observable.map(this.config.validators || []);
+    this.initialValue = this.config.initialValue;
 
     this.reset();
   }
@@ -125,8 +127,7 @@ export class FieldState<T, V = T> implements FormObject<T> {
     this.dirty = false;
     this.validating = false;
     this.touched = false;
-
-    this.modelValue = this.config.initialValue;
+    this.modelValue = this.initialValue;
     this.viewValue = this.formatValue();
     this.error = observable.map();
   }
@@ -166,17 +167,6 @@ export class FieldState<T, V = T> implements FormObject<T> {
 
     this.dirty = true;
   };
-
-  @action
-  updateValue(modelValue: T) {
-    this.modelValue = modelValue;
-
-    if (this.config.transform && this.config.transform.formatter) {
-      this.viewValue = this.config.transform.formatter(modelValue);
-    } else {
-      this.viewValue = modelValue;
-    }
-  }
 
   @action
   validate = async () => {
@@ -226,7 +216,7 @@ export class FieldState<T, V = T> implements FormObject<T> {
     return this.valid;
   };
 
-  parseValue(): T {
+  private parseValue(): T {
     if (this.config.transform && this.config.transform.parser) {
       return this.config.transform.parser(this.viewValue as V);
     }
@@ -234,7 +224,7 @@ export class FieldState<T, V = T> implements FormObject<T> {
     return this.viewValue as T;
   }
 
-  formatValue(): V {
+  private formatValue(): V {
     if (this.config.transform && this.config.transform.formatter) {
       return this.config.transform.formatter(this.modelValue as T);
     }

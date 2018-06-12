@@ -42,10 +42,46 @@ export class FormGroupState
   }
 
   @computed
+  get validating() {
+    return this.fields.some(field => {
+      return field.validating;
+    });
+  }
+
+  @computed
+  get dirty() {
+    return this.fields.some(field => {
+      return field.dirty;
+    });
+  }
+
+  @computed
+  get pristine() {
+    return !this.dirty;
+  }
+
+  @computed
   get valid(): boolean {
     return this.fields.every(field => {
       return field.valid;
     });
+  }
+
+  @computed
+  get invalid() {
+    return !this.valid;
+  }
+
+  @computed
+  get touched() {
+    return this.fields.some(field => {
+      return field.touched;
+    });
+  }
+
+  @computed
+  get untouched() {
+    return !this.touched;
   }
 
   @computed
@@ -67,12 +103,12 @@ export class FormGroupState
   }
 
   @action
-  addField(fieldState: FormObject<any>) {
+  addField<T>(fieldState: FormObject<T>) {
     this.fields.push(fieldState);
   }
 
   @action
-  removeField(fieldState: FormObject<any>) {
+  removeField<T>(fieldState: FormObject<T>) {
     fieldState.reset();
     this.fields = this.fields.filter(_field => {
       return _field !== fieldState;
