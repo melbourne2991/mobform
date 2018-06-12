@@ -36,9 +36,9 @@ export interface FormContextProps {
   parent: FSContextValue;
 }
 
-export interface FSFieldProps<V> {
+export type FSFieldProps<V, P = {}> = P & {
   fieldState: FieldState<any, V>;
-}
+};
 
 export interface InternalFieldProps<T> {
   onChange: (value: T) => void;
