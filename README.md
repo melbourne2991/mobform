@@ -14,7 +14,7 @@ Typescript first Form/Field state & validation, powered by MobX and inspired by 
 
 ## Installation
 
-`npm install --save mobform` / `yarn add mobform`
+`npm install --save @mobform/mobform` / `yarn add @mobform/mobform`
 
 MobX and React are peer dependencies and will need to be installed separately.
 
@@ -180,7 +180,7 @@ You are also able to return a promise from the validator function if you need to
 FormGroups allow us to group fields together so they are easier to manage.
 Nesting a Field component inside an FormGroup component will automatically add that field to the FormGroup's formGroupState (via React's context API).
 
-We can then query the formState to check if the form as a whole is valid, as well as get the values of all the fields with `formGroupState.value` which will give us an object that looks like this: `{<fieldName>: <fieldValue>}`.
+We can then query the formGroupState to check if the form as a whole is valid, as well as get the values of all the fields with `formGroupState.value` which will give us an object that looks like this: `{<fieldName>: <fieldValue>}`.
 
 Forms can also be nested - the name of the form will be a key in the parent form's `.value` object.
 
@@ -429,6 +429,15 @@ Validators.required(): Validator
 Validators.minLength(minLength: number): Validator
 Validators.maxLength(maxLength: number): Validator
 Validators.pattern(pattern: RegExp): Validator
+```
+
+## withFieldProps()
+
+A HOC for creating stateful field components.
+Where `V` is the view value (eg: string for a text input) and `P` are other props.
+
+```
+  const StateEnabledComponent: React.SFC<FieldProps<V, P>> = withFieldProps<P, V>(Component)
 ```
 
 ## validator()

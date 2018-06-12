@@ -44,10 +44,10 @@ export type FieldProps<V, P = {}> = P & {
   fieldState: FieldState<any, V>;
 };
 
-export interface InternalFieldProps<T> {
-  onChange: (value: T) => void;
+export interface InternalFieldProps<V> {
+  onChange: (value: V) => void;
   validate: () => void;
-  value: T;
+  value: V;
   valid: boolean;
   error: ObservableMap<string, boolean>;
 }
