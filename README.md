@@ -10,7 +10,7 @@ Typescript first Form/Field state & validation, powered by MobX and inspired by 
 - Naming of fields
 - Grouping of fields
 - Auto remove/add of fields from state depending on whether the component is present.
-- Custom components (it's up to the consumer to implement their own state-enabled components).
+- Custom components (it's up to the library consumer to implement their own state-enabled components).
 
 ## Installation
 
