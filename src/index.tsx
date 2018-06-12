@@ -9,7 +9,9 @@ import {
 import * as React from "react";
 import { observer } from "mobx-react";
 
-configure({ enforceActions: true });
+if (process.env.MOBFORM_DEVELOPMENT) {
+  configure({ enforceActions: true });
+}
 
 export { Validators } from "./Validators";
 

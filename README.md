@@ -4,7 +4,7 @@ Typescript first Form/Field state & validation, powered by MobX and inspired by 
 
 ## Installation
 
-`npm install --save mobform` or `yarn add mobform`
+`npm install --save mobform` / `yarn add mobform`
 
 MobX and React are peer dependencies and will need to be installed separately.
 
@@ -38,7 +38,7 @@ Most of these are probably self explanatory but to clarify:
 - `value` is the value that the user will see in the input.
 - `validate()` is a function that triggers validation - in the example below we are validating onBlur (when the browser focus leaves the input)
 - `onChange(value)` is a function that takes the updated value, if we don't call this nothing will change.
-- `error` is an ES6 Map of errors tracked by our validators.
+- `error` is an ES6 Map of errors tracked by our fieldState.
 
 _Under the hood `withFieldProps` wraps the component in another component which allows for fields to be automatically removed and added to the form state using the context API._
 
@@ -165,7 +165,64 @@ What we have here is a factory function that takes configuration for the validat
 You are also able to return a promise from the validator function if you need to do any kind of async validation.
 `FieldState` exposes a `.validating` property so you can display a spinner while waiting for a result from the validator.
 
-### Parsers and Formatters
+## Forms
+
+Forms allow us to group fields together so they are easier to manage.
+Nesting a Field component inside an FSForm component will automatically add that field to the FSForm's formState (via React's context API).
+
+We can then query the formState to check if the form as a whole is valid, as well as get the values of all the fields with `formState.value` which will give us an object that looks like this: `{<fieldName>: <fieldValue>}`.
+
+Forms can also be nested - the name of the form will be a key in the parent form's `.value` object.
+
+```tsx
+/**
+ * Form Usage
+ */
+import * as React from "react";
+import { FormState, FieldState, Validators, FSForm } from "../src";
+import { observer } from "mobx-react";
+
+/**
+ * A state enabled text input we created earlier.
+ */
+import { TextInputField } from "./components/TextInputField";
+
+const firstNameFieldState = new FieldState({
+  name: "firstName",
+  initialValue: "Jim",
+  validators: [Validators.required()]
+});
+
+const lastNameFieldState = new FieldState({
+  name: "lastName",
+  initialValue: "Smith",
+  validators: [Validators.required()]
+});
+
+const formState = new FormState({
+  name: "basicForm"
+});
+
+@observer
+export class FormExample extends React.Component<{}> {
+  constructor(props: {}) {
+    super(props);
+  }
+
+  render() {
+    return (
+      <FSForm formState={formState}>
+        <TextInputField fieldState={firstNameFieldState} />
+        <TextInputField fieldState={lastNameFieldState} />
+        <div>Form valid: {`${formState.valid}`}</div>
+        <div>Field values: {`${JSON.stringify(formState.value)}`}</div>
+      </FSForm>
+    );
+  }
+}
+```
+
+## Parsers and Formatters
 
 FieldStates actually maintain two separate values internally. One is the **viewValue** - this is the value that is visible to the user and is the `value` exposed via the `withFieldProps` helper, the other is the **modelValue** (fieldState.value is an alias for fieldState.modelValue). The model value is the actual data represented by the view value.
 
