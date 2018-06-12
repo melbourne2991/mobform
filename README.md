@@ -1,6 +1,6 @@
 # Mobform
 
-Form/Field state & validation, powered by MobX and inspired by Angular forms.
+Typescript first Form/Field state & validation, powered by MobX and inspired by Angular forms.
 
 ## Installation
 
@@ -175,7 +175,7 @@ To do this we can provide our fieldState with a **parser**, which would convert 
 
 `User Input -> Parser -> Validator -> Update modelValue with parsed ViewValue`
 
-The problem is we still would like to be able to set the field programatically, so we also need a way to convert
+The problem is we still would still like to be able to set the field programatically, so we also need a way to convert
 a date object to a string (for example, when prepopulating a form). This is where **formatters** come in:
 
 `Programattically change fieldState value -> Formatter -> Update viewValue with formatted modelValue`

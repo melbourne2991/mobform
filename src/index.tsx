@@ -21,8 +21,8 @@ export interface FieldStateConfig<T, V> {
   name: string;
 
   transform?: {
-    parser?: (viewValue: V) => T;
-    formatter?: (modelValue: T) => V;
+    parser: (viewValue: V) => T;
+    formatter: (modelValue: T) => V;
   };
 
   initialValue: T;
