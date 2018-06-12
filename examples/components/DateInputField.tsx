@@ -1,10 +1,10 @@
 import * as React from "react";
-import { withFieldProps, FSFieldProps } from "../../src";
+import { withFieldProps, FieldProps } from "../../src";
 
 /**
  * Create a state enabled field
  */
-export const DateInputField: React.SFC<FSFieldProps<string>> = withFieldProps(
+export const DateInputField: React.SFC<FieldProps<string>> = withFieldProps(
   ({ validate, value, onChange, error, valid }) => {
     return (
       <div>

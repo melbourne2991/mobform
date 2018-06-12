@@ -1,10 +1,10 @@
 import * as React from "react";
-import { withFieldProps, FSFieldProps } from "../../src";
+import { withFieldProps, FieldProps } from "../../src";
 
 /**
  * Create a state enabled field
  */
-export const TextInputField: React.SFC<FSFieldProps<string>> = withFieldProps(
+export const TextInputField: React.SFC<FieldProps<string>> = withFieldProps(
   ({ validate, value, onChange, error, valid }) => {
     return (
       <div>

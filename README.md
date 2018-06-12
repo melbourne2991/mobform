@@ -26,12 +26,12 @@ Mobform can be broken down into three parts.
 
 #### FieldStates
 
-The core of the library. It is a container for field values as well an interface for exposing
-onChange, and validation and field reset methods.
+A container for field values as well an interface for exposing
+onChange, validation and field reset methods.
 
-#### FormStates
+#### FormGroupStates
 
-Provide a way to group fields to check their validity and get their values.
+Provides a way to group fields to check their validity and get their values.
 
 #### Validators
 
@@ -175,12 +175,12 @@ What we have here is a factory function that takes configuration for the validat
 You are also able to return a promise from the validator function if you need to do any kind of async validation.
 `FieldState` exposes a `.validating` property so you can display a spinner while waiting for a result from the validator.
 
-## Forms
+## FormGroups
 
-Forms allow us to group fields together so they are easier to manage.
-Nesting a Field component inside an FSForm component will automatically add that field to the FSForm's formState (via React's context API).
+FormGroups allow us to group fields together so they are easier to manage.
+Nesting a Field component inside an FormGroup component will automatically add that field to the FormGroup's formGroupState (via React's context API).
 
-We can then query the formState to check if the form as a whole is valid, as well as get the values of all the fields with `formState.value` which will give us an object that looks like this: `{<fieldName>: <fieldValue>}`.
+We can then query the formState to check if the form as a whole is valid, as well as get the values of all the fields with `formGroupState.value` which will give us an object that looks like this: `{<fieldName>: <fieldValue>}`.
 
 Forms can also be nested - the name of the form will be a key in the parent form's `.value` object.
 
@@ -189,7 +189,7 @@ Forms can also be nested - the name of the form will be a key in the parent form
  * Form Usage
  */
 import * as React from "react";
-import { FormState, FieldState, Validators, FSForm } from "../src";
+import { FormGroupState, FieldState, Validators, FormGroup } from "mobform";
 import { observer } from "mobx-react";
 
 /**
@@ -209,24 +209,24 @@ const lastNameFieldState = new FieldState({
   validators: [Validators.required()]
 });
 
-const formState = new FormState({
+const formGroupState = new FormGroupState({
   name: "basicForm"
 });
 
 @observer
-export class FormExample extends React.Component<{}> {
+export class FormGroupExample extends React.Component<{}> {
   constructor(props: {}) {
     super(props);
   }
 
   render() {
     return (
-      <FSForm formState={formState}>
+      <FormGroup formGroupState={formGroupState}>
         <TextInputField fieldState={firstNameFieldState} />
         <TextInputField fieldState={lastNameFieldState} />
-        <div>Form valid: {`${formState.valid}`}</div>
-        <div>Field values: {`${JSON.stringify(formState.value)}`}</div>
-      </FSForm>
+        <div>Form valid: {`${formGroupState.valid}`}</div>
+        <div>Field values: {`${JSON.stringify(formGroupState.value)}`}</div>
+      </FormGroup>
     );
   }
 }

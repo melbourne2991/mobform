@@ -1,5 +1,5 @@
 {
-  "name": "mobform",
+  "name": "@mobform/mobform",
   "version": "1.0.0",
   "description": "",
   "main": "lib/index.js",
@@ -32,7 +32,7 @@
     "webpack-dev-server": "^3.1.4"
   },
   "peerDependencies": {
-    "mobx": ">=4.3.1",
+    "mobx": ">=4.3.0",
     "mobx-react": ">=5.2.0",
     "react": ">=16.4.0",
     "react-dom": ">=16.4.0"

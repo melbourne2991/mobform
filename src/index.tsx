@@ -9,48 +9,25 @@ import {
 import * as React from "react";
 import { observer } from "mobx-react";
 
+import {
+  ValidatorFn,
+  Validator,
+  InternalFieldProps,
+  FieldProps,
+  FormGroupContextProps,
+  FormObject,
+  FieldStateConfig
+} from "./types";
+
+import { withFormContext } from "./FormGroup";
+
 if (process.env.MOBFORM_DEVELOPMENT) {
   configure({ enforceActions: true });
 }
 
+export * from "./types";
 export { Validators } from "./Validators";
-
-export type Validator<T, V> = [string, ValidatorFn<T, V>];
-
-export type ValidatorConfig<T, V> = Validator<T, V>[];
-
-export interface FieldStateConfig<T, V> {
-  name: string;
-
-  transform?: {
-    parser: (viewValue: V) => T;
-    formatter: (modelValue: T) => V;
-  };
-
-  initialValue: T;
-
-  validators?: ValidatorConfig<T, V>;
-}
-
-export type FSContextValue = FormState;
-
-export interface FormContextProps {
-  parent: FSContextValue;
-}
-
-export type FSFieldProps<V, P = {}> = P & {
-  fieldState: FieldState<any, V>;
-};
-
-export interface InternalFieldProps<T> {
-  onChange: (value: T) => void;
-  validate: () => void;
-  value: T;
-  valid: boolean;
-  error: ObservableMap<string, boolean>;
-}
-
-export type ValidatorFn<T, V> = (value: T, viewValue: V) => Promise<boolean>;
+export { FormGroup, FormGroupState } from "./FormGroup";
 
 export const validatorFn = function<T, V>(
   fn: (value: T, viewValue: V) => boolean | Promise<boolean>
@@ -76,99 +53,6 @@ export const validator = function<T, V>(
   return [key, validatorFn(fn)];
 };
 
-export interface FormObject<T> {
-  name: string;
-  valid: boolean;
-  value: T;
-  reset: () => void;
-}
-
-export class FormState implements FormObject<{ [fieldName: string]: any }> {
-  @observable fields: FormObject<any>[];
-  name: string;
-
-  constructor({ name }: { name: string }) {
-    this.name = name;
-    this.fields = [];
-  }
-
-  @computed
-  get valid(): boolean {
-    return this.fields.every(field => {
-      return field.valid;
-    });
-  }
-
-  @computed
-  get value() {
-    const fieldMap = {};
-
-    this.fields.forEach(fieldState => {
-      fieldMap[fieldState.name] = fieldState.value;
-    });
-
-    return fieldMap;
-  }
-
-  @action
-  reset() {
-    this.fields.forEach(fieldState => {
-      fieldState.reset();
-    });
-  }
-
-  @action
-  addField(fieldState: FormObject<any>) {
-    this.fields.push(fieldState);
-  }
-
-  @action
-  removeField(fieldState: FormObject<any>) {
-    fieldState.reset();
-    this.fields = this.fields.filter(_field => {
-      return _field !== fieldState;
-    });
-  }
-}
-
-const FSContext = React.createContext<FSContextValue>(
-  new FormState({ name: "root" })
-);
-
-export const withFormContext = function wthFormContext<P>(
-  Component: React.ComponentType<P & FormContextProps>
-): React.SFC<P> {
-  return (props: P) => {
-    return (
-      <FSContext.Consumer>
-        {(value: FSContextValue) => <Component parent={value} {...props} />}
-      </FSContext.Consumer>
-    );
-  };
-};
-
-export class FSFormComponent extends React.Component<
-  { formState: FormState } & FormContextProps
-> {
-  constructor(props: { formState: FormState } & FormContextProps) {
-    super(props);
-  }
-
-  componentWillUnmount() {
-    this.props.parent.removeField(this.props.formState);
-  }
-
-  componentDidMount() {
-    this.props.parent.addField(this.props.formState);
-  }
-
-  render() {
-    return <FSContext.Provider value={this.props.formState} {...this.props} />;
-  }
-}
-
-export const FSForm = withFormContext(FSFormComponent);
-
 export function withFieldProps<P, F>(
   Component: React.ComponentType<P & InternalFieldProps<F>>
 ) {
@@ -177,8 +61,8 @@ export function withFieldProps<P, F>(
   return observer(
     withFormContext(
       observer(
-        class extends React.Component<FSFieldProps<F> & FormContextProps> {
-          constructor(props: FSFieldProps<F> & FormContextProps) {
+        class extends React.Component<FieldProps<F> & FormGroupContextProps> {
+          constructor(props: FieldProps<F> & FormGroupContextProps) {
             super(props);
           }
 

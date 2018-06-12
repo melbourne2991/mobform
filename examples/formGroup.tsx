@@ -2,7 +2,7 @@
  * Form Usage
  */
 import * as React from "react";
-import { FormState, FieldState, Validators, FSForm } from "../src";
+import { FormGroupState, FieldState, Validators, FormGroup } from "../src";
 import { observer } from "mobx-react";
 
 /**
@@ -22,24 +22,26 @@ const lastNameFieldState = new FieldState({
   validators: [Validators.required()]
 });
 
-const formState = new FormState({
+const formGroupState = new FormGroupState({
   name: "basicForm"
 });
 
 @observer
-export class FormExample extends React.Component<{}> {
+export class FormGroupExample extends React.Component<{}> {
   constructor(props: {}) {
     super(props);
   }
 
   render() {
     return (
-      <FSForm formState={formState}>
+      <FormGroup formGroupState={formGroupState}>
         <TextInputField fieldState={firstNameFieldState} />
         <TextInputField fieldState={lastNameFieldState} />
-        <div>Form valid: {`${formState.valid}`}</div>
-        <div>Field values: {`${JSON.stringify(formState.value)}`}</div>
-      </FSForm>
+        <div>Form valid: {`${formGroupState.valid}`}</div>
+        <div>
+          Field values: <code>{`${JSON.stringify(formGroupState.value)}`}</code>
+        </div>
+      </FormGroup>
     );
   }
 }
