@@ -18,6 +18,20 @@ Typescript first Form/Field state & validation, powered by MobX and inspired by 
 
 MobX and React are peer dependencies and will need to be installed separately.
 
+## Examples
+
+- Creating a state-enabled field (todo)
+- Using a state-enabled field (todo)
+- Grouping fields (todo)
+- Resetting field groups (todo)
+- Validation (todo)
+- Async validation (todo)
+- Conditional validation (todo)
+- Formatters and parsers (todo)
+- Use with react-bootstrap (todo)
+- Use with material-ui (todo)
+- Full form/app example (todo)
+
 ## Basic usage
 
 ### Concepts

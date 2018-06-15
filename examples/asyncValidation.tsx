@@ -11,7 +11,7 @@ import { observer } from "mobx-react";
 import { TextInputField } from "./components/TextInputField";
 
 function someAsyncCall(): Promise<boolean> {
-  return new Promise(resolve => setTimeout(() => resolve(true), 500));
+  return new Promise(resolve => setTimeout(() => resolve(false), 500));
 }
 
 const firstNameFieldState = new FieldState<string>({
@@ -38,7 +38,8 @@ export class AsyncValidationExample extends React.Component<{}> {
       <div>
         <TextInputField fieldState={firstNameFieldState} />
         {firstNameFieldState.validating && "Validating..."}
-        An async error: {firstNameFieldState.error.get("asyncValidation")}
+        An async error:
+        {firstNameFieldState.error.get("asyncValidation") && "I am an error."}
       </div>
     );
   }

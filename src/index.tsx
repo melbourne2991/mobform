@@ -29,8 +29,8 @@ export * from "./types";
 export { Validators } from "./Validators";
 export { FormGroup, FormGroupState } from "./FormGroup";
 
-export const validatorFn = function<T, V>(
-  fn: (value: T, viewValue: V) => boolean | Promise<boolean>
+export const makeAsync = function<T, V>(
+  fn: ValidatorLikeFn<T, V>
 ): ValidatorFn<T, V> {
   return (value: T, viewValue: V) => {
     const result = fn(value, viewValue);
@@ -46,11 +46,13 @@ export const validatorFn = function<T, V>(
 export type SyncValidator<T, V> = (value: T, viewValue: V) => boolean;
 export type ValidatorLikeFn<T, V> = ValidatorFn<T, V> | SyncValidator<T, V>;
 
+// Takes a validator or a validatorFn
 export const validator = function<T, V>(
   key: string,
-  fn: ValidatorLikeFn<T, V>
+  fn: ValidatorLikeFn<T, V> | Validator<T, V>
 ): Validator<T, V> {
-  return [key, validatorFn(fn)];
+  const _validator = typeof fn === "function" ? makeAsync(fn) : fn[1];
+  return [key, _validator];
 };
 
 export function withFieldProps<P, F>(
