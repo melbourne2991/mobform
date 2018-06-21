@@ -19,7 +19,10 @@ export interface FormObject<T> {
   reset: () => void;
 }
 
-export type Validator<T, V> = [string, ValidatorFn<T, V>];
+export type Validator<T, V> = {
+  key: string;
+  test: ValidatorFn<T, V>;
+};
 
 export type ValidatorConfig<T, V> = Validator<T, V>[];
 
@@ -52,4 +55,7 @@ export interface InternalFieldProps<V> {
   error: ObservableMap<string, boolean>;
 }
 
-export type ValidatorFn<T, V> = (value: T, viewValue: V) => Promise<boolean>;
+export type ValidatorFn<T, V> = (
+  value: T,
+  viewValue: V
+) => Promise<boolean> | boolean;

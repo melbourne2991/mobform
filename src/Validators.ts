@@ -2,7 +2,8 @@ import { validator } from "./";
 
 const required = () =>
   validator("required", (value: any, viewValue: string) => {
-    return !!value && !!viewValue.length;
+    value;
+    return !isUndefined(viewValue);
   });
 
 const min = (minNumber: number) =>

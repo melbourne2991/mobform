@@ -1,5 +1,6 @@
 import * as React from "react";
-import { observable, computed, action } from "mobx";
+import { observable, computed, action, trace } from "mobx";
+import { observer } from "mobx-react";
 
 import {
   FormObject,
@@ -7,6 +8,7 @@ import {
   FormGroupContextValue
 } from "./types";
 
+@observer
 export class FormGroupComponent extends React.Component<
   { formGroupState: FormGroupState } & FormGroupContextProps
 > {
@@ -38,7 +40,7 @@ export class FormGroupState
 
   constructor({ name }: { name: string }) {
     this.name = name;
-    this.fields = [];
+    this.fields = observable([]);
   }
 
   @computed
@@ -62,6 +64,9 @@ export class FormGroupState
 
   @computed
   get valid(): boolean {
+    console.log("valid");
+    trace();
+
     return this.fields.every(field => {
       return field.valid;
     });
@@ -120,7 +125,7 @@ const FSContext = React.createContext<FormGroupContextValue>(
   new FormGroupState({ name: "root" })
 );
 
-export const withFormContext = function wthFormContext<P>(
+export const withFormContext = function withFormContext<P>(
   Component: React.ComponentType<P & FormGroupContextProps>
 ): React.SFC<P> {
   return (props: P) => {

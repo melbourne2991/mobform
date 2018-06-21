@@ -29,30 +29,17 @@ export * from "./types";
 export { Validators } from "./Validators";
 export { FormGroup, FormGroupState } from "./FormGroup";
 
-export const makeAsync = function<T, V>(
-  fn: ValidatorLikeFn<T, V>
-): ValidatorFn<T, V> {
-  return (value: T, viewValue: V) => {
-    const result = fn(value, viewValue);
-
-    if ((result as Promise<boolean>).then) {
-      return result as Promise<boolean>;
-    }
-
-    return Promise.resolve(result);
-  };
-};
-
-export type SyncValidator<T, V> = (value: T, viewValue: V) => boolean;
-export type ValidatorLikeFn<T, V> = ValidatorFn<T, V> | SyncValidator<T, V>;
-
 // Takes a validator or a validatorFn
 export const validator = function<T, V>(
   key: string,
-  fn: ValidatorLikeFn<T, V> | Validator<T, V>
+  fn: ValidatorFn<T, V> | Validator<T, V>
 ): Validator<T, V> {
-  const _validator = typeof fn === "function" ? makeAsync(fn) : fn[1];
-  return [key, _validator];
+  const _validator =
+    typeof fn === "function" ? fn : (fn as Validator<T, V>).test;
+  return {
+    key,
+    test: _validator
+  };
 };
 
 export function withFieldProps<P, F>(
@@ -120,7 +107,9 @@ export class FieldState<T, V = T> implements FormObject<T> {
   constructor(config: FieldStateConfig<T, V>) {
     this.name = config.name;
     this.config = config;
-    this.validators = observable.map(this.config.validators || []);
+    this.validators = observable.map(
+      mapValidatorConfig(this.config.validators) || []
+    );
     this.initialValue = this.config.initialValue;
 
     this.reset();
@@ -182,17 +171,15 @@ export class FieldState<T, V = T> implements FormObject<T> {
 
     const results = await Promise.all(
       Array.from(this.validators).map(
-        ([name, validatorFn]: Validator<any, any>) => {
-          return new Promise<{ name: string; valid: boolean }>(
-            async resolve => {
-              const valid = await validatorFn(testValue as T, this.viewValue);
+        ([key, test]: [string, ValidatorFn<any, any>]) => {
+          return new Promise<{ key: string; valid: boolean }>(async resolve => {
+            const valid = await test(testValue as T, this.viewValue);
 
-              resolve({
-                name,
-                valid
-              });
-            }
-          );
+            resolve({
+              key,
+              valid
+            });
+          });
         }
       )
     );
@@ -201,15 +188,20 @@ export class FieldState<T, V = T> implements FormObject<T> {
       // enable validation on change
       this.validationEnabled = true;
 
-      this.valid = results.every(result => {
+      let fieldValid = true;
+
+      results.forEach(result => {
         if (result.valid === false) {
-          this.error.set(result.name, true);
+          fieldValid = false;
+          this.error.set(result.key, true);
         } else {
-          this.error.set(result.name, false);
+          this.error.set(result.key, false);
         }
 
         return result.valid;
       });
+
+      this.valid = fieldValid;
 
       if (this.valid) {
         this.modelValue = testValue;
@@ -242,5 +234,16 @@ export function withKey<T, V>(
   validator: Validator<T, V>,
   key: string
 ): Validator<T, V> {
-  return [key, validator[1]];
+  return {
+    key,
+    test: validator.test
+  };
+}
+
+function mapValidatorConfig(
+  validators: Validator<any, any>[]
+): [string, ValidatorFn<any, any>][] {
+  return validators.map(validator => {
+    return [validator.key, validator.test] as [string, ValidatorFn<any, any>];
+  });
 }

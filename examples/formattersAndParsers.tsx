@@ -11,6 +11,8 @@ import * as moment from "moment";
  */
 import { DateInputField } from "./components/DateInputField";
 
+const requiredValidator = Validators.required();
+
 const dateOfBirthFieldState = new FieldState<Date, string>({
   name: "dateOfBirth",
   initialValue: undefined,
@@ -21,8 +23,10 @@ const dateOfBirthFieldState = new FieldState<Date, string>({
      * Create a custom validator for our date.
      * See the customValidators example for more information
      */
-    validator("dateFormat", (value: Date, viewValue: string) => {
-      value;
+    validator("dateFormat", async (value: Date, viewValue: string) => {
+      const emptyValue = !(await requiredValidator.test(value, viewValue));
+      if (emptyValue) return true;
+
       return moment(viewValue, "DD-MM-YYYY", true).isValid();
     })
   ],
