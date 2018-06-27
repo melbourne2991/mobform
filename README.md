@@ -43,7 +43,7 @@ Mobform can be broken down into three parts.
 A container for field values as well an interface for exposing
 onChange, validation and field reset methods.
 
-#### FormGroupStates
+#### FieldGroupStates
 
 Provides a way to group fields to check their validity and get their values.
 
@@ -189,12 +189,12 @@ What we have here is a factory function that takes configuration for the validat
 You are also able to return a promise from the validator function if you need to do any kind of async validation.
 `FieldState` exposes a `.validating` property so you can display a spinner while waiting for a result from the validator.
 
-## FormGroups
+## FieldGroups
 
-FormGroups allow us to group fields together so they are easier to manage.
-Nesting a Field component inside an FormGroup component will automatically add that field to the FormGroup's formGroupState (via React's context API).
+FieldGroups allow us to group fields together so they are easier to manage.
+Nesting a Field component inside an FieldGroup component will automatically add that field to the FieldGroup's FieldGroupState (via React's context API).
 
-We can then query the formGroupState to check if the form as a whole is valid, as well as get the values of all the fields with `formGroupState.value` which will give us an object that looks like this: `{<fieldName>: <fieldValue>}`.
+We can then query the FieldGroupState to check if the form as a whole is valid, as well as get the values of all the fields with `FieldGroupState.value` which will give us an object that looks like this: `{<fieldName>: <fieldValue>}`.
 
 Forms can also be nested - the name of the form will be a key in the parent form's `.value` object.
 
@@ -203,7 +203,7 @@ Forms can also be nested - the name of the form will be a key in the parent form
  * Form Usage
  */
 import * as React from "react";
-import { FormGroupState, FieldState, Validators, FormGroup } from "mobform";
+import { FieldGroupState, FieldState, Validators, FieldGroup } from "mobform";
 import { observer } from "mobx-react";
 
 /**
@@ -223,24 +223,24 @@ const lastNameFieldState = new FieldState({
   validators: [Validators.required()]
 });
 
-const formGroupState = new FormGroupState({
+const FieldGroupState = new FieldGroupState({
   name: "basicForm"
 });
 
 @observer
-export class FormGroupExample extends React.Component<{}> {
+export class FieldGroupExample extends React.Component<{}> {
   constructor(props: {}) {
     super(props);
   }
 
   render() {
     return (
-      <FormGroup formGroupState={formGroupState}>
+      <FieldGroup FieldGroupState={FieldGroupState}>
         <TextInputField fieldState={firstNameFieldState} />
         <TextInputField fieldState={lastNameFieldState} />
-        <div>Form valid: {`${formGroupState.valid}`}</div>
-        <div>Field values: {`${JSON.stringify(formGroupState.value)}`}</div>
-      </FormGroup>
+        <div>Form valid: {`${FieldGroupState.valid}`}</div>
+        <div>Field values: {`${JSON.stringify(FieldGroupState.value)}`}</div>
+      </FieldGroup>
     );
   }
 }
@@ -392,12 +392,12 @@ FieldState<T, V> {
 }
 ```
 
-## FormGroupState
+## FieldGroupState
 
 #### Constructor
 
 ```
-const formGroupState = new FormGroupState({
+const FieldGroupState = new FieldGroupState({
   name: string
 });
 ```
@@ -405,7 +405,7 @@ const formGroupState = new FormGroupState({
 #### Instance
 
 ```
- FormGroupState {
+ FieldGroupState {
   // The fields currently in the form's context (child components)
   fields: FieldState<any>[];
 
@@ -420,14 +420,14 @@ const formGroupState = new FormGroupState({
   untouched: boolean;
   validating: boolean;
 
-  // Calls reset on all of it's fields (including nested FormGroups).
+  // Calls reset on all of it's fields (including nested FieldGroups).
   reset(): void
 
   // If you are using the React helpers you will probably never need these.
   // The withFieldProps wrapper component calls these in react lifecycle methods
   // to remove and add fields dynamically.
   //
-  // A form object is an interface that both FormGroups and FieldStates conform to.
+  // A form object is an interface that both FieldGroups and FieldStates conform to.
   addField<T>(formObject: FormObject<T>): void;
   removeField<T>(formObject: FormObject<T>): void;
  }

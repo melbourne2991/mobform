@@ -2,7 +2,7 @@
  * Form Usage
  */
 import * as React from "react";
-import { FormGroupState, FieldState, Validators, FormGroup } from "../src";
+import { FieldGroupState, FieldState, Validators, FieldGroup } from "../src";
 import { trace } from "mobx";
 import { observer } from "mobx-react";
 
@@ -23,12 +23,12 @@ const lastNameFieldState = new FieldState({
   validators: [Validators.required()]
 });
 
-const formGroupState = new FormGroupState({
+const fieldGroupState = new FieldGroupState({
   name: "basicForm"
 });
 
 @observer
-export class FormGroupExample extends React.Component<{}> {
+export class FieldGroupExample extends React.Component<{}> {
   constructor(props: {}) {
     super(props);
   }
@@ -38,14 +38,15 @@ export class FormGroupExample extends React.Component<{}> {
     trace();
 
     return (
-      <FormGroup formGroupState={formGroupState}>
+      <FieldGroup fieldGroupState={fieldGroupState}>
         <TextInputField fieldState={firstNameFieldState} />
         <TextInputField fieldState={lastNameFieldState} />
-        <div>Form valid: {`${formGroupState.valid}`}</div>
+        <div>Form valid: {`${fieldGroupState.valid}`}</div>
         <div>
-          Field values: <code>{`${JSON.stringify(formGroupState.value)}`}</code>
+          Field values:
+          <code>{`${JSON.stringify(fieldGroupState.value)}`}</code>
         </div>
-      </FormGroup>
+      </FieldGroup>
     );
   }
 }

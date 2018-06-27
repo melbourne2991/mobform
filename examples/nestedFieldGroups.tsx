@@ -2,7 +2,7 @@
  * Form Usage
  */
 import * as React from "react";
-import { FormGroupState, FieldState, Validators, FormGroup } from "../src";
+import { FieldGroupState, FieldState, Validators, FieldGroup } from "../src";
 import { observer } from "mobx-react";
 
 /**
@@ -34,28 +34,28 @@ const lastNameFieldStateB = new FieldState({
   validators: [Validators.required()]
 });
 
-const parentFormState = new FormGroupState({
+const parentFormState = new FieldGroupState({
   name: "parentForm"
 });
 
-const childFormStateA = new FormGroupState({
+const childFormStateA = new FieldGroupState({
   name: "childFormA"
 });
 
-const childFormStateB = new FormGroupState({
+const childFormStateB = new FieldGroupState({
   name: "childFormB"
 });
 
 @observer
-export class NestedFormGroupsExample extends React.Component<{}> {
+export class NestedFieldGroupsExample extends React.Component<{}> {
   constructor(props: {}) {
     super(props);
   }
 
   render() {
     return (
-      <FormGroup formGroupState={parentFormState}>
-        <FormGroup formGroupState={childFormStateA}>
+      <FieldGroup fieldGroupState={parentFormState}>
+        <FieldGroup fieldGroupState={childFormStateA}>
           <TextInputField fieldState={firstNameFieldStateA} />
           <TextInputField fieldState={lastNameFieldStateA} />
           <div>Form valid: {`${childFormStateA.valid}`}</div>
@@ -63,24 +63,24 @@ export class NestedFormGroupsExample extends React.Component<{}> {
             Field values:{" "}
             <code>{`${JSON.stringify(childFormStateA.value)}`}</code>
           </div>
-        </FormGroup>
+        </FieldGroup>
 
-        <FormGroup formGroupState={childFormStateB}>
+        <FieldGroup fieldGroupState={childFormStateB}>
           <TextInputField fieldState={firstNameFieldStateB} />
           <TextInputField fieldState={lastNameFieldStateB} />
           <div>Form valid: {`${childFormStateB.valid}`}</div>
           <div>
-            Field values:{" "}
+            Field values:
             <code>{`${JSON.stringify(childFormStateB.value)}`}</code>
           </div>
-        </FormGroup>
+        </FieldGroup>
 
         <div>Parent Form valid: {`${parentFormState.valid}`}</div>
         <div>
-          Parent Form Field values:{" "}
+          Parent Form Field values:
           <code>{`${JSON.stringify(parentFormState.value)}`}</code>
         </div>
-      </FormGroup>
+      </FieldGroup>
     );
   }
 }

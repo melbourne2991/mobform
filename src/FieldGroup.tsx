@@ -4,36 +4,36 @@ import { observer } from "mobx-react";
 
 import {
   FormObject,
-  FormGroupContextProps,
-  FormGroupContextValue
+  FieldGroupContextProps,
+  FieldGroupContextValue
 } from "./types";
 
 @observer
-export class FormGroupComponent extends React.Component<
-  { formGroupState: FormGroupState } & FormGroupContextProps
+export class FieldGroupComponent extends React.Component<
+  { fieldGroupState: FieldGroupState } & FieldGroupContextProps
 > {
   constructor(
-    props: { formGroupState: FormGroupState } & FormGroupContextProps
+    props: { fieldGroupState: FieldGroupState } & FieldGroupContextProps
   ) {
     super(props);
   }
 
   componentWillUnmount() {
-    this.props.parent.removeField(this.props.formGroupState);
+    this.props.parent.removeField(this.props.fieldGroupState);
   }
 
   componentDidMount() {
-    this.props.parent.addField(this.props.formGroupState);
+    this.props.parent.addField(this.props.fieldGroupState);
   }
 
   render() {
     return (
-      <FSContext.Provider value={this.props.formGroupState} {...this.props} />
+      <FSContext.Provider value={this.props.fieldGroupState} {...this.props} />
     );
   }
 }
 
-export class FormGroupState
+export class FieldGroupState
   implements FormObject<{ [fieldName: string]: any }> {
   @observable fields: FormObject<any>[];
   name: string;
@@ -121,17 +121,17 @@ export class FormGroupState
   }
 }
 
-const FSContext = React.createContext<FormGroupContextValue>(
-  new FormGroupState({ name: "root" })
+const FSContext = React.createContext<FieldGroupContextValue>(
+  new FieldGroupState({ name: "root" })
 );
 
 export const withFormContext = function withFormContext<P>(
-  Component: React.ComponentType<P & FormGroupContextProps>
+  Component: React.ComponentType<P & FieldGroupContextProps>
 ): React.SFC<P> {
   return (props: P) => {
     return (
       <FSContext.Consumer>
-        {(value: FormGroupContextValue) => (
+        {(value: FieldGroupContextValue) => (
           <Component parent={value} {...props} />
         )}
       </FSContext.Consumer>
@@ -139,4 +139,4 @@ export const withFormContext = function withFormContext<P>(
   };
 };
 
-export const FormGroup = withFormContext(FormGroupComponent);
+export const FieldGroup = withFormContext(FieldGroupComponent);

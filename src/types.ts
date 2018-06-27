@@ -1,8 +1,8 @@
 import { ObservableMap } from "mobx";
-import { FormGroupState } from "./FormGroup";
+import { FieldGroupState } from "./FieldGroup";
 import { FieldState } from "./index";
 
-export type FormGroupContextValue = FormGroupState;
+export type FieldGroupContextValue = FieldGroupState;
 
 export interface FormObject<T> {
   name: string;
@@ -39,8 +39,8 @@ export interface FieldStateConfig<T, V> {
   validators?: ValidatorConfig<T, V>;
 }
 
-export interface FormGroupContextProps {
-  parent: FormGroupContextValue;
+export interface FieldGroupContextProps {
+  parent: FieldGroupContextValue;
 }
 
 export type FieldProps<V, P = {}> = P & {

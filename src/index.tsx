@@ -14,12 +14,12 @@ import {
   Validator,
   InternalFieldProps,
   FieldProps,
-  FormGroupContextProps,
+  FieldGroupContextProps,
   FormObject,
   FieldStateConfig
 } from "./types";
 
-import { withFormContext } from "./FormGroup";
+import { withFormContext } from "./FieldGroup";
 
 if (process.env.MOBFORM_DEVELOPMENT) {
   configure({ enforceActions: true });
@@ -27,7 +27,7 @@ if (process.env.MOBFORM_DEVELOPMENT) {
 
 export * from "./types";
 export { Validators } from "./Validators";
-export { FormGroup, FormGroupState } from "./FormGroup";
+export { FieldGroup, FieldGroupState } from "./FieldGroup";
 
 // Takes a validator or a validatorFn
 export const validator = function<T, V>(
@@ -51,9 +51,9 @@ export function withFieldProps<P, F>(
     withFormContext(
       observer(
         class extends React.Component<
-          FieldProps<F, P> & FormGroupContextProps
+          FieldProps<F, P> & FieldGroupContextProps
         > {
-          constructor(props: FieldProps<F, P> & FormGroupContextProps) {
+          constructor(props: FieldProps<F, P> & FieldGroupContextProps) {
             super(props);
           }
 

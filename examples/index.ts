@@ -1,14 +1,14 @@
 import { createIndexPage } from "./util/createIndexPage";
 import { BasicExample } from "./basic";
-import { FormGroupExample } from "./formGroup";
+import { FieldGroupExample } from "./fieldGroup";
 import { FormattersAndParsersExample } from "./formattersAndParsers";
 import { AsyncValidationExample } from "./asyncValidation";
-import { NestedFormGroupsExample } from "./nestedFormGroups";
+import { NestedFieldGroupsExample } from "./nestedFieldGroups";
 
 createIndexPage({
   "/basic": BasicExample,
-  "/formGroups": FormGroupExample,
+  "/FieldGroups": FieldGroupExample,
   "/formattersAndParsers": FormattersAndParsersExample,
   "/asyncValidation": AsyncValidationExample,
-  "/nestedFormGroups": NestedFormGroupsExample
+  "/nestedFieldGroups": NestedFieldGroupsExample
 });
