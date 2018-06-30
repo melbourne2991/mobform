@@ -1,7 +1,7 @@
 import { FieldGroupState } from "./FieldGroup";
 import { FieldState } from "./index";
 
-export type FieldGroupContextValue = {
+export type FieldGroupContextValue = FieldOptions & {
   state: FieldGroupState;
 };
 
@@ -41,18 +41,32 @@ export interface FieldStateConfig<T, V> {
   initialValue: T;
 
   validators?: ValidatorConfig<V>;
+  validationStrategy?: ValidationStrategy;
+}
+
+export interface FieldGroupConfig {
+  name: string;
 }
 
 export interface FieldGroupContextProps {
-  parent: FieldGroupContextValue;
+  parent?: FieldGroupContextValue;
 }
 
 export type FieldGroupProps = FieldGroupContextProps;
 
-export type FieldProps<V, P = {}> = P & InternalFieldProps<V>;
+export type FieldProps<V, P = {}> = P &
+  FieldOptions & {
+    fieldState: FieldState<any, V>;
+  };
 
-export type InternalFieldProps<V> = {
-  fieldState: FieldState<any, V>;
+export type FieldOptions = {
+  disableResetOnUnmount?: boolean;
+  disableRemoveFromParentOnUnmount?: boolean;
 };
 
 export type ValidatorFn<V> = (viewValue: V) => Promise<boolean> | boolean;
+
+export interface ValidationStrategy {
+  onChange?: (this: FieldState<any>) => void;
+  onBlur?: (this: FieldState<any>) => void;
+}

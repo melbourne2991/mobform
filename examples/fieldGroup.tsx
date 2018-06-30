@@ -3,7 +3,6 @@
  */
 import * as React from "react";
 import { FieldGroupState, FieldState, Validators, FieldGroup } from "../src";
-import { trace } from "mobx";
 import { observer } from "mobx-react";
 
 /**
@@ -34,9 +33,6 @@ export class FieldGroupExample extends React.Component<{}> {
   }
 
   render() {
-    console.log("Rerender!");
-    trace();
-
     return (
       <FieldGroup fieldGroupState={fieldGroupState}>
         <TextInputField fieldState={firstNameFieldState} />

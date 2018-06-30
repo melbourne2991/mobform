@@ -1,5 +1,13 @@
 import { observable, computed, action, ObservableMap, runInAction } from "mobx";
-import { ValidatorFn, Validator, FormObject, FieldStateConfig } from "./types";
+import * as ValidationStrategies from "./ValidationStrategies";
+
+import {
+  ValidatorFn,
+  Validator,
+  FormObject,
+  FieldStateConfig,
+  ValidationStrategy
+} from "./types";
 
 export class FieldState<T, V = T> implements FormObject<T> {
   @observable modelValue: T;
@@ -18,6 +26,7 @@ export class FieldState<T, V = T> implements FormObject<T> {
 
   name: string;
   parent: FormObject<any>;
+  validationStrategy: ValidationStrategy;
 
   private config: FieldStateConfig<T, V>;
 
@@ -28,6 +37,9 @@ export class FieldState<T, V = T> implements FormObject<T> {
       mapValidatorConfig(this.config.validators) || []
     );
     this.initialValue = this.config.initialValue;
+
+    this.validationStrategy =
+      this.config.validationStrategy || ValidationStrategies.Default;
 
     this.reset();
   }
@@ -73,15 +85,14 @@ export class FieldState<T, V = T> implements FormObject<T> {
     this.viewValue = value;
     this.dirty = true;
 
-    if (this.touched) {
-      await this.validate();
-    }
+    this.validationStrategy.onChange.call(this);
   };
 
   @action
   onBlur = () => {
     this.touched = true;
-    this.validate();
+
+    this.validationStrategy.onBlur.call(this);
   };
 
   @action

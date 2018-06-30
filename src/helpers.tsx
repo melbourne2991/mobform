@@ -3,7 +3,6 @@ import * as React from "react";
 import {
   ValidatorFn,
   Validator,
-  InternalFieldProps,
   FieldProps,
   FieldGroupContextProps
 } from "./types";
@@ -39,7 +38,7 @@ export const validator = function<V>(
 };
 
 export function connectedField<P, V>(
-  Component: React.ComponentType<P & InternalFieldProps<V>>
+  Component: React.ComponentType<P & FieldProps<V>>
 ) {
   const ObserverComponent = observer(Component);
 
@@ -53,12 +52,37 @@ export function connectedField<P, V>(
             super(props);
           }
 
+          shouldResetOnUnmount() {
+            return !(
+              this.props.disableResetOnUnmount ||
+              (this.props.parent && this.props.parent.disableResetOnUnmount)
+            );
+          }
+
+          shouldRemoveFromParentOnUnmount() {
+            return !(
+              this.props.disableRemoveFromParentOnUnmount ||
+              (this.props.parent &&
+                this.props.parent.disableRemoveFromParentOnUnmount)
+            );
+          }
+
           componentWillUnmount() {
-            this.props.parent.state.removeField(this.props.fieldState);
+            this.props.parent.disableResetOnUnmount;
+
+            if (this.shouldResetOnUnmount()) {
+              this.props.fieldState.reset();
+            }
+
+            if (this.shouldRemoveFromParentOnUnmount) {
+              this.props.parent.state.removeField(this.props.fieldState);
+            }
           }
 
           componentDidMount() {
-            this.props.parent.state.addField(this.props.fieldState);
+            if (this.props.parent) {
+              this.props.parent.state.addField(this.props.fieldState);
+            }
           }
 
           render() {

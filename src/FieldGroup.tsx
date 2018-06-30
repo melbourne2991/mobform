@@ -1,12 +1,13 @@
 import * as React from "react";
-import { observable, computed, action, trace } from "mobx";
+import { observable, computed, action } from "mobx";
 import { observer } from "mobx-react";
 
 import {
   FormObject,
   FieldGroupProps,
   FieldGroupContextProps,
-  FieldGroupContextValue
+  FieldGroupContextValue,
+  FieldGroupConfig
 } from "./types";
 
 @observer
@@ -43,7 +44,7 @@ export class FieldGroupState
   name: string;
   parent: FormObject<any>;
 
-  constructor({ name }: { name: string }) {
+  constructor({ name }: FieldGroupConfig) {
     this.name = name;
     this.fields = observable([]);
   }
@@ -69,9 +70,6 @@ export class FieldGroupState
 
   @computed
   get valid(): boolean {
-    console.log("valid");
-    trace();
-
     return this.fields.every(field => {
       return field.valid;
     });
