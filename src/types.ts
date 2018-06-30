@@ -1,10 +1,12 @@
-import { ObservableMap } from "mobx";
 import { FieldGroupState } from "./FieldGroup";
 import { FieldState } from "./index";
 
-export type FieldGroupContextValue = FieldGroupState;
+export type FieldGroupContextValue = {
+  state: FieldGroupState;
+};
 
 export interface FormObject<T> {
+  parent?: FormObject<any>;
   name: string;
 
   valid: boolean;
@@ -19,12 +21,14 @@ export interface FormObject<T> {
   reset: () => void;
 }
 
-export type Validator<T, V> = {
+export type ValidatorFactory<V> = (...params: any[]) => Validator<V>;
+
+export type Validator<V> = {
   key: string;
-  test: ValidatorFn<T, V>;
+  test: ValidatorFn<V>;
 };
 
-export type ValidatorConfig<T, V> = Validator<T, V>[];
+export type ValidatorConfig<V> = Validator<V>[];
 
 export interface FieldStateConfig<T, V> {
   name: string;
@@ -36,26 +40,19 @@ export interface FieldStateConfig<T, V> {
 
   initialValue: T;
 
-  validators?: ValidatorConfig<T, V>;
+  validators?: ValidatorConfig<V>;
 }
 
 export interface FieldGroupContextProps {
   parent: FieldGroupContextValue;
 }
 
-export type FieldProps<V, P = {}> = P & {
+export type FieldGroupProps = FieldGroupContextProps;
+
+export type FieldProps<V, P = {}> = P & InternalFieldProps<V>;
+
+export type InternalFieldProps<V> = {
   fieldState: FieldState<any, V>;
 };
 
-export interface InternalFieldProps<V> {
-  onChange: (value: V) => void;
-  validate: () => void;
-  value: V;
-  valid: boolean;
-  error: ObservableMap<string, boolean>;
-}
-
-export type ValidatorFn<T, V> = (
-  value: T,
-  viewValue: V
-) => Promise<boolean> | boolean;
+export type ValidatorFn<V> = (viewValue: V) => Promise<boolean> | boolean;

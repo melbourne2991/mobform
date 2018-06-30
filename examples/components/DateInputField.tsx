@@ -1,17 +1,19 @@
 import * as React from "react";
-import { withFieldProps, FieldProps } from "../../src";
+import { connectedField, FieldProps } from "../../src";
 
 /**
  * Create a state enabled field
  */
-export const DateInputField: React.SFC<FieldProps<string>> = withFieldProps(
-  ({ validate, value, onChange, error, valid }) => {
+export const DateInputField: React.SFC<FieldProps<string>> = connectedField(
+  ({ fieldState }) => {
+    const { viewValue, error, onChange, onBlur, valid } = fieldState;
+
     return (
       <div>
         <input
           type={"text"}
-          value={value}
-          onBlur={validate}
+          value={viewValue}
+          onBlur={onBlur}
           onChange={e => onChange(e.target.value)}
         />
 

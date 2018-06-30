@@ -4,31 +4,35 @@ import { observer } from "mobx-react";
 
 import {
   FormObject,
+  FieldGroupProps,
   FieldGroupContextProps,
   FieldGroupContextValue
 } from "./types";
 
 @observer
 export class FieldGroupComponent extends React.Component<
-  { fieldGroupState: FieldGroupState } & FieldGroupContextProps
+  { fieldGroupState: FieldGroupState } & FieldGroupProps
 > {
-  constructor(
-    props: { fieldGroupState: FieldGroupState } & FieldGroupContextProps
-  ) {
+  constructor(props: { fieldGroupState: FieldGroupState } & FieldGroupProps) {
     super(props);
   }
 
   componentWillUnmount() {
-    this.props.parent.removeField(this.props.fieldGroupState);
+    this.props.parent.state.removeField(this.props.fieldGroupState);
   }
 
   componentDidMount() {
-    this.props.parent.addField(this.props.fieldGroupState);
+    this.props.parent.state.addField(this.props.fieldGroupState);
   }
 
   render() {
     return (
-      <FSContext.Provider value={this.props.fieldGroupState} {...this.props} />
+      <FSContext.Provider
+        value={{
+          state: this.props.fieldGroupState
+        }}
+        {...this.props}
+      />
     );
   }
 }
@@ -37,6 +41,7 @@ export class FieldGroupState
   implements FormObject<{ [fieldName: string]: any }> {
   @observable fields: FormObject<any>[];
   name: string;
+  parent: FormObject<any>;
 
   constructor({ name }: { name: string }) {
     this.name = name;
@@ -110,20 +115,23 @@ export class FieldGroupState
   @action
   addField<T>(fieldState: FormObject<T>) {
     this.fields.push(fieldState);
+    fieldState.parent = this;
   }
 
   @action
   removeField<T>(fieldState: FormObject<T>) {
+    delete fieldState.parent;
     fieldState.reset();
+
     this.fields = this.fields.filter(_field => {
       return _field !== fieldState;
     });
   }
 }
 
-const FSContext = React.createContext<FieldGroupContextValue>(
-  new FieldGroupState({ name: "root" })
-);
+const FSContext = React.createContext<FieldGroupContextValue>({
+  state: new FieldGroupState({ name: "root" })
+});
 
 export const withFormContext = function withFormContext<P>(
   Component: React.ComponentType<P & FieldGroupContextProps>

@@ -1,35 +1,40 @@
 import { validator } from "./";
+import { isEmpty } from "./helpers";
+import { ValidatorFactory } from "./types";
 
-const required = () =>
-  validator("required", (value: any, viewValue: string) => {
-    value;
-    return !isUndefined(viewValue);
-  });
+const required: ValidatorFactory<any> = () => {
+  return {
+    key: "required",
+    test: value => {
+      return !isEmpty(value);
+    }
+  };
+};
 
-const min = (minNumber: number) =>
-  validator("min", (value: string | number) => {
+const min: ValidatorFactory<string | number> = (minNumber: number) =>
+  validator("min", value => {
     return getNum(value) >= minNumber;
   });
 
-const max = (maxNumber: number) =>
-  validator("min", (value: string | number) => {
+const max: ValidatorFactory<string | number> = (maxNumber: number) =>
+  validator("min", value => {
     return getNum(value) <= maxNumber;
   });
 
-const minLength = (minLength: number) =>
-  validator("minLength", (value: string) => {
+const minLength: ValidatorFactory<string> = (minLength: number) =>
+  validator("minLength", value => {
     return value.length >= minLength;
   });
 
-const maxLength = (maxLength: number) =>
-  validator("maxLength", (value: string) => {
+const maxLength: ValidatorFactory<string> = (maxLength: number) =>
+  validator("maxLength", value => {
     return value.length <= maxLength;
   });
 
-const pattern = (pattern: RegExp | string) => {
+const pattern: ValidatorFactory<string> = (pattern: RegExp | string) => {
   const regexp = typeof pattern === "string" ? new RegExp(pattern) : pattern;
 
-  return validator("pattern", (value: string) => {
+  return validator("pattern", value => {
     return regexp.test(value);
   });
 };
@@ -45,16 +50,8 @@ const email = () => {
 };
 
 function getNum(value: string | number) {
-  if (isUndefined(value)) {
-    return true;
-  }
-
   const parsedVal = typeof value === "string" ? parseFloat(value) : value;
   return parsedVal;
-}
-
-function isUndefined(value: any): boolean {
-  return value === null || value === undefined || value.length === 0;
 }
 
 export const Validators = {
