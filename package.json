@@ -15,7 +15,7 @@
     "clean": "rm -rf ./build/src && rm -rf ./lib",
     "build": "npm run clean && tsc && cp -r ./build/src ./lib",
     "docs": "typedoc --out ./docs ./src",
-    "publish": "npm publish --access public"
+    "publish": "npm run build && npm publish --access public"
   },
   "author": "",
   "license": "ISC",
