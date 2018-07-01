@@ -41,12 +41,16 @@ export class FieldGroupComponent extends React.Component<
 export class FieldGroupState
   implements FormObject<{ [fieldName: string]: any }> {
   @observable fields: FormObject<any>[];
+
+  // Cache is used for string references.
+  cache: FormObject<any>[];
   name: string;
   parent: FormObject<any>;
 
-  constructor({ name }: FieldGroupConfig) {
+  constructor({ name, fields = [] }: FieldGroupConfig) {
     this.name = name;
     this.fields = observable([]);
+    this.cache = fields;
   }
 
   @computed
@@ -111,18 +115,43 @@ export class FieldGroupState
   }
 
   @action
-  addField<T>(fieldState: FormObject<T>) {
-    this.fields.push(fieldState);
-    fieldState.parent = this;
+  async validate() {
+    const result = await Promise.all(
+      this.fields.map(field => field.validate())
+    );
+
+    return result.every(result => result);
+  }
+
+  findFieldByName(name: string, cache?: boolean) {
+    let arr = cache ? this.cache : this.fields;
+    return arr.find(field => field.name === name);
+  }
+
+  getFormObjectFromRef<T>(fieldRef: FormObject<T> | string) {
+    const fieldState =
+      typeof fieldRef === "string"
+        ? this.findFieldByName(fieldRef, true)
+        : fieldRef;
+
+    if (!fieldState) {
+      throw new Error(`Could not find field with fieldRef: ${fieldRef}`);
+    }
+
+    return fieldState;
   }
 
   @action
-  removeField<T>(fieldState: FormObject<T>) {
-    delete fieldState.parent;
-    fieldState.reset();
+  addField<T>(formObject: FormObject<T>) {
+    this.fields.push(formObject);
+    formObject.parent = this;
+  }
 
+  @action
+  removeField<T>(formObject: FormObject<T>) {
+    delete formObject.parent;
     this.fields = this.fields.filter(_field => {
-      return _field !== fieldState;
+      return _field !== formObject;
     });
   }
 }

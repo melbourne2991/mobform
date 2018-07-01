@@ -34,15 +34,17 @@ export class FieldGroupExample extends React.Component<{}> {
 
   render() {
     return (
-      <FieldGroup fieldGroupState={fieldGroupState}>
-        <TextInputField fieldState={firstNameFieldState} />
-        <TextInputField fieldState={lastNameFieldState} />
-        <div>Form valid: {`${fieldGroupState.valid}`}</div>
-        <div>
-          Field values:
-          <code>{`${JSON.stringify(fieldGroupState.value)}`}</code>
-        </div>
-      </FieldGroup>
+      <div>
+        <FieldGroup fieldGroupState={fieldGroupState}>
+          <TextInputField fieldState={firstNameFieldState} />
+          <TextInputField fieldState={lastNameFieldState} />
+          <div>Form valid: {`${fieldGroupState.valid}`}</div>
+          <div>
+            Field values:
+            <code>{`${JSON.stringify(fieldGroupState.value)}`}</code>
+          </div>
+        </FieldGroup>
+      </div>
     );
   }
 }

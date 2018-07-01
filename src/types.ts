@@ -19,6 +19,7 @@ export interface FormObject<T> {
 
   value: T;
   reset: () => void;
+  validate: () => Promise<boolean>;
 }
 
 export type ValidatorFactory<V> = (...params: any[]) => Validator<V>;
@@ -46,6 +47,7 @@ export interface FieldStateConfig<T, V> {
 
 export interface FieldGroupConfig {
   name: string;
+  fields?: FormObject<any>[];
 }
 
 export interface FieldGroupContextProps {
@@ -54,10 +56,16 @@ export interface FieldGroupContextProps {
 
 export type FieldGroupProps = FieldGroupContextProps;
 
+export type FieldRef<T, V> = FieldState<T, V> | string;
+
 export type FieldProps<V, P = {}> = P &
   FieldOptions & {
-    fieldState: FieldState<any, V>;
+    fieldState: FieldRef<any, V>;
   };
+
+export type InternalFieldProps<V, P> = P & {
+  fieldState: FieldState<any, V>;
+};
 
 export type FieldOptions = {
   disableResetOnUnmount?: boolean;

@@ -4,12 +4,14 @@ import {
   ValidatorFn,
   Validator,
   FieldProps,
-  FieldGroupContextProps
+  FieldGroupContextProps,
+  InternalFieldProps
 } from "./types";
 
 import { withFormContext } from "./FieldGroup";
 
 import { observer } from "mobx-react";
+import { FieldState } from "./FieldState";
 
 export function withKey<V>(validator: Validator<V>, key: string): Validator<V> {
   return {
@@ -38,7 +40,7 @@ export const validator = function<V>(
 };
 
 export function connectedField<P, V>(
-  Component: React.ComponentType<P & FieldProps<V>>
+  Component: React.ComponentType<P & InternalFieldProps<V, P>>
 ) {
   const ObserverComponent = observer(Component);
 
@@ -52,14 +54,14 @@ export function connectedField<P, V>(
             super(props);
           }
 
-          shouldResetOnUnmount() {
+          private shouldResetOnUnmount() {
             return !(
               this.props.disableResetOnUnmount ||
               (this.props.parent && this.props.parent.disableResetOnUnmount)
             );
           }
 
-          shouldRemoveFromParentOnUnmount() {
+          private shouldRemoveFromParentOnUnmount() {
             return !(
               this.props.disableRemoveFromParentOnUnmount ||
               (this.props.parent &&
@@ -67,21 +69,37 @@ export function connectedField<P, V>(
             );
           }
 
+          private fieldState(): FieldState<any, V> {
+            if (typeof this.props.fieldState === "string") {
+              if (!this.props.parent) {
+                throw new Error(
+                  "Passing a string to a connected field requires the field to be nested inside a field group."
+                );
+              }
+
+              return this.props.parent.state.getFormObjectFromRef(
+                this.props.fieldState
+              ) as FieldState<any, V>;
+            }
+
+            return this.props.fieldState as FieldState<any, V>;
+          }
+
           componentWillUnmount() {
             this.props.parent.disableResetOnUnmount;
 
             if (this.shouldResetOnUnmount()) {
-              this.props.fieldState.reset();
+              this.fieldState().reset();
             }
 
             if (this.shouldRemoveFromParentOnUnmount) {
-              this.props.parent.state.removeField(this.props.fieldState);
+              this.props.parent.state.removeField(this.fieldState());
             }
           }
 
           componentDidMount() {
             if (this.props.parent) {
-              this.props.parent.state.addField(this.props.fieldState);
+              this.props.parent.state.addField(this.fieldState());
             }
           }
 
@@ -89,7 +107,7 @@ export function connectedField<P, V>(
             const rest = this.props;
 
             return (
-              <ObserverComponent {...rest} fieldState={this.props.fieldState} />
+              <ObserverComponent {...rest} fieldState={this.fieldState()} />
             );
           }
         }
