@@ -33,9 +33,11 @@ export class FieldState<T, V = T> implements FormObject<T> {
   constructor(config: FieldStateConfig<T, V>) {
     this.name = config.name;
     this.config = config;
+
     this.validators = observable.map(
-      mapValidatorConfig(this.config.validators || [])
+      mapValidatorConfig(this.config.validators || []) || []
     );
+
     this.initialValue = this.config.initialValue;
 
     this.validationStrategy =
