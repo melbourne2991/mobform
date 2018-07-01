@@ -2,7 +2,7 @@
  * Async Validation
  */
 import * as React from "react";
-import { FieldState, validator } from "../src";
+import { FieldState, validator, Validators } from "../src";
 import { observer } from "mobx-react";
 
 /**
@@ -18,6 +18,8 @@ const firstNameFieldState = new FieldState<string>({
   name: "firstName",
   initialValue: "Jim",
   validators: [
+    Validators.required(),
+
     /**
      * Return a promise from the validator function
      */
