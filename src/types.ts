@@ -54,7 +54,9 @@ export interface FieldGroupContextProps {
   parent?: FieldGroupContextValue;
 }
 
-export type FieldGroupProps = FieldGroupContextProps;
+export type FieldGroupProps = {
+  fieldGroupState: FieldGroupState;
+} & FieldOptions;
 
 export type FieldRef<T, V> = FieldState<T, V> | string;
 

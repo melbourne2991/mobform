@@ -12,7 +12,7 @@ import {
 
 @observer
 export class FieldGroupComponent extends React.Component<
-  { fieldGroupState: FieldGroupState } & FieldGroupProps
+  FieldGroupProps & FieldGroupContextProps
 > {
   constructor(props: { fieldGroupState: FieldGroupState } & FieldGroupProps) {
     super(props);
@@ -30,7 +30,10 @@ export class FieldGroupComponent extends React.Component<
     return (
       <FSContext.Provider
         value={{
-          state: this.props.fieldGroupState
+          state: this.props.fieldGroupState,
+          disableRemoveFromParentOnUnmount: this.props
+            .disableRemoveFromParentOnUnmount,
+          disableResetOnUnmount: this.props.disableResetOnUnmount
         }}
         {...this.props}
       />
@@ -174,4 +177,4 @@ export const withFormContext = function withFormContext<P>(
   };
 };
 
-export const FieldGroup = withFormContext(FieldGroupComponent);
+export const FieldGroup = withFormContext<FieldGroupProps>(FieldGroupComponent);
