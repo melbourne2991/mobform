@@ -1,5 +1,5 @@
 import * as React from "react";
-import * as page from "page";
+import page from "page";
 import { render } from "react-dom";
 
 export function createIndexPage(routes: {
